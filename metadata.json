@@ -1,0 +1,8 @@
+{
+  "name": "ArteChain - 文化遗产产业化平台",
+  "description": "连接敦煌、三星堆等文化遗产，提供从AI创意生成到产业实现的完整艺术品产业链平台。",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

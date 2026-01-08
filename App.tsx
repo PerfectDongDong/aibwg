@@ -7,7 +7,8 @@ import AcademicMarket from './views/AcademicResearch';
 import ThemeRecommendation from './views/ThemeRecommendation';
 import InternalReview from './views/InternalReview';
 import CommercialHub from './views/CommercialHub';
-import { Bell, Search, User, Shield, Users } from 'lucide-react';
+import WorkLicensing from './views/WorkLicensing';
+import { Bell, Search, Shield, Users } from 'lucide-react';
 import { UserRole } from './types';
 
 const App: React.FC = () => {
@@ -19,11 +20,13 @@ const App: React.FC = () => {
       case 'dashboard':
         return <Dashboard role={userRole} />;
       case 'research':
-        return <AcademicMarket />;
+        return <AcademicMarket role={userRole} />;
       case 'recommend':
-        return <ThemeRecommendation />;
+        return <ThemeRecommendation role={userRole} />;
       case 'review':
         return <InternalReview />;
+      case 'license':
+        return <WorkLicensing role={userRole} />;
       case 'apply':
         return <CommercialHub />;
       case 'track':
@@ -41,8 +44,8 @@ const App: React.FC = () => {
   const handleRoleChange = (role: UserRole) => {
     setUserRole(role);
     // If the current view is not available for the new role, redirect to dashboard
-    const internalViews = ['dashboard', 'research', 'recommend', 'review', 'track'];
-    const commercialViews = ['dashboard', 'recommend', 'apply', 'track'];
+    const internalViews = ['dashboard', 'research', 'recommend', 'review', 'license', 'track'];
+    const commercialViews = ['dashboard', 'recommend', 'license', 'apply', 'track'];
     const availableViews = role === 'INTERNAL' ? internalViews : commercialViews;
     
     if (!availableViews.includes(activeView)) {

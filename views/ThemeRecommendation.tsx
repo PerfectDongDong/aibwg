@@ -3,248 +3,356 @@ import React, { useState } from 'react';
 import { 
   Zap, 
   ArrowRight, 
-  GitBranch, 
-  BarChart3, 
-  History, 
-  Cpu, 
   Palette, 
-  Layers, 
   Sparkles,
   Quote,
   TrendingUp,
-  Target
+  Target,
+  Search,
+  BookOpen,
+  PieChart,
+  Share2,
+  Network,
+  Cpu,
+  Layers,
+  BarChart,
+  Globe,
+  Plus,
+  X,
+  PlusSquare
 } from 'lucide-react';
+import { UserRole } from '../types';
 
-interface CreationPathStep {
-  label: string;
-  icon: any;
-  desc: string;
-}
-
-interface CreativeWork {
+interface ThemePackage {
   id: string;
   title: string;
+  subtitle: string;
   imageUrl: string;
-  creator: string;
-  prompt: string;
-  analysis: {
-    aesthetic: number;
-    market: number;
-    originality: number;
-    commercial: string;
-  };
-  path: CreationPathStep[];
+  academicSource: string;
+  socialFocus: string[]; // ['小红书', '抖音']
+  hotScore: number;
+  marketPotential: string;
+  palette: string[];
+  motifs: string[];
 }
 
-const ThemeRecommendation: React.FC = () => {
+interface ThemeRecommendationProps {
+  role?: UserRole;
+}
+
+const ThemeRecommendation: React.FC<ThemeRecommendationProps> = ({ role = 'INTERNAL' }) => {
   const [activeTheme, setActiveTheme] = useState<'DUNHUANG' | 'SANXINGDUI'>('DUNHUANG');
+  const [hoveredPackage, setHoveredPackage] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const dunhuangWorks: CreativeWork[] = [
+  // State for themes
+  const [dunhuangThemes, setDunhuangThemes] = useState<ThemePackage[]>([
     {
-      id: 'DH-01',
-      title: '飞天·极光智能腕表',
-      creator: 'DigitalArtifact_Dev',
-      imageUrl: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=2070&auto=format&fit=crop',
-      prompt: '敦煌莫高窟112窟“反弹琵琶”飞天飘带线条，流体金属材质，融合赛博朋克霓虹光影，高端腕表表盘设计。',
-      analysis: {
-        aesthetic: 98,
-        market: 94,
-        originality: 96,
-        commercial: '高端可穿戴设备、奢侈品跨界联名'
-      },
-      path: [
-        { label: '学术灵感', icon: History, desc: '提取112窟壁画的S型飘带律动感' },
-        { label: 'AI 演化', icon: Cpu, desc: '通过Gemini生成流体金属物理参数' },
-        { label: '现代重构', icon: Palette, desc: '将矿物颜料与极光色彩体系融合' },
-        { label: '产业对齐', icon: Layers, desc: '适配3D精密铣削工艺路径' }
-      ]
-    }
-  ];
-
-  const sanxingduiWorks: CreativeWork[] = [
+      id: 'T-DH-01',
+      title: '极光飞天：流体金属',
+      subtitle: '将反弹琵琶的动感与赛博朋克流体结合',
+      academicSource: '莫高窟 112 窟·唐代壁画线描研究',
+      socialFocus: ['小红书', '抖音'],
+      hotScore: 98,
+      marketPotential: '高端潮玩、数字腕表、概念美妆',
+      palette: ['#B45309', '#78350F', '#06B6D4', '#EAB308'],
+      motifs: ['飘带曲线', '宝相花', '反弹琵琶'],
+      imageUrl: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=2070'
+    },
     {
-      id: 'SX-01',
-      title: '纵目·未来主义香氛',
-      creator: 'AncientSoul_AI',
-      imageUrl: 'https://images.unsplash.com/photo-1634913619583-05f31998590c?q=80&w=2070&auto=format&fit=crop',
-      prompt: '三星堆纵目面具眼部几何结构，青铜氧化质感与极简磨砂玻璃结合，神秘祭祀气息与高端沙龙香氛围感。',
-      analysis: {
-        aesthetic: 95,
-        market: 91,
-        originality: 98,
-        commercial: '生活方式消费、高端香化、家居装饰'
-      },
-      path: [
-        { label: '学术灵感', icon: History, desc: '解析祭祀文化中的“视通万里”哲学' },
-        { label: 'AI 演化', icon: Cpu, desc: 'Gemini 3-Pro 优化复杂几何建模' },
-        { label: '现代重构', icon: Palette, desc: '青铜绿与克莱因蓝的色彩碰撞' },
-        { label: '产业对齐', icon: Layers, desc: '极简主义极速成型包装设计' }
-      ]
+      id: 'T-DH-02',
+      title: '九色鹿：治愈系大地',
+      subtitle: '北魏矿物颜料与现代疗愈美学',
+      academicSource: '莫高窟 257 窟·九色鹿本生',
+      socialFocus: ['小红书', '快手'],
+      hotScore: 92,
+      marketPotential: '母婴用品、香薰家居、舒缓插画',
+      palette: ['#FEF3C7', '#FDE68A', '#92400E', '#D97706'],
+      motifs: ['九色鹿影', '云纹', '北魏风格树木'],
+      imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964'
+    },
+    {
+      id: 'T-DH-03',
+      title: '藻井华盖：中式对称',
+      subtitle: '隋唐藻井纹样与现代极简家居',
+      academicSource: '莫高窟 329 窟·藻井莲花纹',
+      socialFocus: ['小红书', '知乎'],
+      hotScore: 89,
+      marketPotential: '高端丝巾、灯饰设计、艺术餐具',
+      palette: ['#1E3A8A', '#F59E0B', '#F1F5F9', '#DC2626'],
+      motifs: ['重叠莲花', '连环云纹', '几何放射'],
+      imageUrl: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070'
     }
-  ];
+  ]);
 
-  const currentWorks = activeTheme === 'DUNHUANG' ? dunhuangWorks : sanxingduiWorks;
+  const [sanxingduiThemes, setSanxingduiThemes] = useState<ThemePackage[]>([
+    {
+      id: 'T-SX-01',
+      title: '纵目未来：重型工业',
+      subtitle: '青铜器几何折面与电竞美学',
+      academicSource: '三星堆二号祭祀坑·青铜纵目面具',
+      socialFocus: ['抖音', 'B站'],
+      hotScore: 95,
+      marketPotential: '电竞外设、机械键盘、功能性箱包',
+      palette: ['#0D9488', '#115E59', '#D1D5DB', '#4B5563'],
+      motifs: ['纵目折线', '神树分枝', '兽面纹'],
+      imageUrl: 'https://images.unsplash.com/photo-1628527304948-06157ee3c8a6?q=80&w=2070'
+    },
+    {
+      id: 'T-SX-02',
+      title: '神树秘境：模组化潮玩',
+      subtitle: '利用青铜神树的结构开发拼装潮玩',
+      academicSource: '三星堆一号祭祀坑·青铜神树',
+      socialFocus: ['抖音', '得物'],
+      hotScore: 94,
+      marketPotential: '积木玩具、盲盒、桌面摆件',
+      palette: ['#101E17', '#34D399', '#9CA3AF', '#FCD34D'],
+      motifs: ['分体支架', '金乌造型', '螺旋枝叶'],
+      imageUrl: 'https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?q=80&w=2070'
+    },
+    {
+      id: 'T-SX-03',
+      title: '金面奢享：高定时尚',
+      subtitle: '古蜀金箔工艺与现代奢侈品包装',
+      academicSource: '三星堆三号祭祀坑·金面罩',
+      socialFocus: ['小红书', 'Vogue'],
+      hotScore: 87,
+      marketPotential: '高级珠宝、香水包材、礼盒定制',
+      palette: ['#F59E0B', '#000000', '#FFFFFF', '#78350F'],
+      motifs: ['金面轮廓', '流纹', '太阳鸟'],
+      imageUrl: 'https://images.unsplash.com/photo-1541443131876-44b03de101c5?q=80&w=2070'
+    }
+  ]);
+
+  const currentThemes = activeTheme === 'DUNHUANG' ? dunhuangThemes : sanxingduiThemes;
+
+  // Form State
+  const [formData, setFormData] = useState({
+    title: '',
+    subtitle: '',
+    academicSource: '',
+    motifs: '',
+    palette: '#B45309,#78350F,#06B6D4',
+    imageUrl: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=2070'
+  });
+
+  const handleCreateTheme = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newTheme: ThemePackage = {
+      id: `T-${activeTheme === 'DUNHUANG' ? 'DH' : 'SX'}-${Date.now()}`,
+      title: formData.title,
+      subtitle: formData.subtitle,
+      academicSource: formData.academicSource,
+      imageUrl: formData.imageUrl,
+      socialFocus: ['小红书', '抖音'],
+      hotScore: 85,
+      marketPotential: '待定',
+      palette: formData.palette.split(','),
+      motifs: formData.motifs.split(',').map(s => s.trim())
+    };
+
+    if (activeTheme === 'DUNHUANG') {
+      setDunhuangThemes([newTheme, ...dunhuangThemes]);
+    } else {
+      setSanxingduiThemes([newTheme, ...sanxingduiThemes]);
+    }
+
+    setIsModalOpen(false);
+    setFormData({ title: '', subtitle: '', academicSource: '', motifs: '', palette: '#B45309,#78350F,#06B6D4', imageUrl: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?q=80&w=2070' });
+  };
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-700">
-      {/* 顶部主题切换 */}
+    <div className="space-y-10 animate-in fade-in duration-700 relative">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-        <div>
-          <h1 className="text-4xl font-black tracking-tight mb-2">主题推荐与创作深度分析</h1>
-          <p className="text-stone-400">基于 AI 洞察学术发现的市场潜力，展示从历史灵感到现代产品的完整演化。</p>
+        <div className="max-w-2xl">
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-4xl font-black tracking-tight">AI 灵感策展引擎</h1>
+            <span className="bg-amber-500/10 text-amber-500 text-[10px] font-bold px-3 py-1 rounded-full border border-amber-500/20 uppercase tracking-widest flex items-center gap-1">
+              <Cpu size={12} /> Curated by AI
+            </span>
+          </div>
+          <p className="text-stone-400">
+            合成具有商业爆发潜力的“文化主题包”，连接学术白皮书与社交媒体热力。
+          </p>
         </div>
-        <div className="flex bg-stone-900/80 p-1 rounded-2xl border border-stone-800 backdrop-blur-md">
-          <button 
-            onClick={() => setActiveTheme('DUNHUANG')}
-            className={`px-8 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTheme === 'DUNHUANG' ? 'bg-amber-600 text-white shadow-lg' : 'text-stone-500 hover:text-stone-300'}`}
-          >
-            敦煌·丝路幻境
-          </button>
-          <button 
-            onClick={() => setActiveTheme('SANXINGDUI')}
-            className={`px-8 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTheme === 'SANXINGDUI' ? 'bg-teal-700 text-white shadow-lg' : 'text-stone-500 hover:text-stone-300'}`}
-          >
-            三星堆·古蜀文明
-          </button>
+        
+        <div className="flex items-center gap-4">
+          {role === 'INTERNAL' && (
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 px-6 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-amber-900/20 transition-all"
+            >
+              <PlusSquare size={18} /> 策展新主题
+            </button>
+          )}
+          
+          <div className="flex bg-stone-900/80 p-1 rounded-2xl border border-stone-800 backdrop-blur-md">
+            <button onClick={() => setActiveTheme('DUNHUANG')} className={`px-8 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTheme === 'DUNHUANG' ? 'bg-amber-600 text-white shadow-lg' : 'text-stone-500 hover:text-stone-300'}`}>敦煌·丝路</button>
+            <button onClick={() => setActiveTheme('SANXINGDUI')} className={`px-8 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTheme === 'SANXINGDUI' ? 'bg-teal-700 text-white shadow-lg' : 'text-stone-500 hover:text-stone-300'}`}>三星堆·古蜀</button>
+          </div>
         </div>
       </div>
 
-      {/* 核心看板 */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* 左侧：主题大视觉 */}
-        <div className="lg:col-span-5 space-y-6">
-          <div className={`relative aspect-[4/5] rounded-[2.5rem] overflow-hidden group border-2 ${activeTheme === 'DUNHUANG' ? 'border-amber-500/30' : 'border-teal-500/30'}`}>
-            <img 
-              src={activeTheme === 'DUNHUANG' 
-                ? "https://images.unsplash.com/photo-1541443131876-44b03de101c5?q=80&w=2070" 
-                : "https://images.unsplash.com/photo-1599707367072-cd6ada2bc375?q=80&w=2066"} 
-              className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
-              alt="Theme Focus"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent p-10 flex flex-col justify-end">
-              <div className="flex items-center gap-2 mb-4">
-                <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${activeTheme === 'DUNHUANG' ? 'bg-amber-500 text-white' : 'bg-teal-600 text-white'}`}>
-                  HOT 趋势预测
-                </span>
-                <span className="text-white/60 text-xs font-medium">潜力指数: 9.8/10</span>
-              </div>
-              <h2 className="text-5xl font-black text-white mb-4 leading-tight">
-                {activeTheme === 'DUNHUANG' ? '大漠星河：\n色彩体系重塑' : '纵目古蜀：\n几何主义觉醒'}
-              </h2>
-              <p className="text-stone-300 text-lg leading-relaxed max-w-sm mb-8">
-                {activeTheme === 'DUNHUANG' 
-                  ? '将莫高窟珍稀矿物色彩与深空美学结合，打造跨越千年的视觉奢华感。' 
-                  : '深度解析青铜面具的视觉张力，将其转化为未来主义风格的工业设计语言。'}
-              </p>
-              <button className={`w-fit px-8 py-4 rounded-2xl font-bold flex items-center gap-3 transition-all ${activeTheme === 'DUNHUANG' ? 'bg-stone-900 border border-amber-900/30 text-amber-500 hover:bg-stone-800' : 'bg-stone-900 border border-teal-900/30 text-teal-500 hover:bg-stone-800'}`}>
-                <Target size={20} />
-                锁定当前主题趋势
-                <ArrowRight size={18} />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* 右侧：优秀作品展示与路径分析 */}
-        <div className="lg:col-span-7 space-y-8">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold flex items-center gap-2">
-              <TrendingUp className={activeTheme === 'DUNHUANG' ? 'text-amber-500' : 'text-teal-500'} />
-              主题案例解析
-            </h3>
-            <span className="text-stone-500 text-sm">精选 1,200+ 存档创意案例</span>
-          </div>
-
-          <div className="space-y-10">
-            {currentWorks.map((work) => (
-              <div key={work.id} className="glass-card rounded-[2rem] p-8 border-stone-800/50 hover:border-stone-700 transition-all">
-                <div className="flex flex-col xl:flex-row gap-8">
-                  {/* 作品主图与创作者 */}
-                  <div className="xl:w-2/5">
-                    <div className="aspect-square rounded-2xl overflow-hidden mb-4 border border-stone-800">
-                      <img src={work.imageUrl} className="w-full h-full object-cover" alt={work.title} />
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+        <div className="xl:col-span-8 space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {currentThemes.map((theme) => (
+              <div 
+                key={theme.id} 
+                onMouseEnter={() => setHoveredPackage(theme.id)}
+                className={`glass-card rounded-[2.5rem] p-1 border-stone-800/50 hover:border-amber-500/30 transition-all cursor-pointer group flex flex-col ${hoveredPackage === theme.id ? 'ring-1 ring-amber-500/20' : ''}`}
+              >
+                <div className="aspect-[16/10] rounded-[2.2rem] overflow-hidden relative">
+                  <img src={theme.imageUrl} alt={theme.title} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-6 flex flex-col justify-end">
+                    <div className="flex items-center gap-2 mb-2">
+                       <span className="text-[10px] font-bold bg-amber-500 text-white px-2 py-0.5 rounded uppercase tracking-tighter">Theme Package</span>
+                       <span className="text-[10px] font-bold text-white/70">潜力指数: {theme.hotScore}</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-stone-800 flex items-center justify-center text-[10px] font-bold">DA</div>
-                      <div>
-                        <div className="text-xs font-bold text-stone-200">{work.creator}</div>
-                        <div className="text-[10px] text-stone-500 uppercase">Case Study</div>
-                      </div>
-                    </div>
+                    <h3 className="text-2xl font-black text-white">{theme.title}</h3>
+                  </div>
+                </div>
+                
+                <div className="p-6 space-y-4">
+                  <p className="text-xs text-stone-400 font-medium leading-relaxed">{theme.subtitle}</p>
+                  
+                  <div className="flex flex-wrap gap-2">
+                    {theme.motifs.map(m => (
+                      <span key={m} className="text-[10px] bg-stone-900 border border-stone-800 text-stone-300 px-2 py-1 rounded-lg">#{m}</span>
+                    ))}
                   </div>
 
-                  {/* 创作路径与分析 */}
-                  <div className="flex-1 space-y-6">
-                    <div className="flex justify-between items-start">
-                      <h4 className="text-2xl font-bold">{work.title}</h4>
-                      <div className={`p-2 rounded-xl bg-stone-900 border ${activeTheme === 'DUNHUANG' ? 'border-amber-900/30' : 'border-teal-900/30'}`}>
-                        <BarChart3 className={activeTheme === 'DUNHUANG' ? 'text-amber-500' : 'text-teal-500'} size={20} />
-                      </div>
+                  <div className="pt-4 border-t border-stone-800 flex justify-between items-center">
+                    <div className="flex -space-x-2">
+                      {theme.palette.map((color, i) => (
+                        <div key={i} className="w-6 h-6 rounded-full border-2 border-stone-950" style={{ backgroundColor: color }} />
+                      ))}
                     </div>
-
-                    {/* AI 分析雷达 */}
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="bg-stone-900/50 p-3 rounded-xl text-center">
-                        <div className="text-[10px] text-stone-500 uppercase font-bold mb-1">审美价值</div>
-                        <div className="text-lg font-bold text-amber-500">{work.analysis.aesthetic}%</div>
-                      </div>
-                      <div className="bg-stone-900/50 p-3 rounded-xl text-center">
-                        <div className="text-[10px] text-stone-500 uppercase font-bold mb-1">市场潜力</div>
-                        <div className="text-lg font-bold text-emerald-500">{work.analysis.market}%</div>
-                      </div>
-                      <div className="bg-stone-900/50 p-3 rounded-xl text-center">
-                        <div className="text-[10px] text-stone-500 uppercase font-bold mb-1">文化原创</div>
-                        <div className="text-lg font-bold text-blue-500">{work.analysis.originality}%</div>
-                      </div>
-                    </div>
-
-                    <div className="bg-amber-900/10 border border-amber-900/20 p-4 rounded-xl">
-                      <div className="flex gap-2 items-start text-stone-300 text-xs italic leading-relaxed">
-                        <Quote size={14} className="text-amber-500 flex-shrink-0" />
-                        <div>
-                          <strong>AI 洞察：</strong> 该作品在保持学术还原度的同时，通过“{work.analysis.commercial}”等场景化对齐，极大地降低了文化消费门槛。
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* 创作路径可视化 */}
-                    <div className="space-y-4">
-                      <div className="text-xs font-bold uppercase tracking-widest text-stone-500 flex items-center gap-2">
-                        <GitBranch size={14} /> 演化逻辑溯源
-                      </div>
-                      <div className="flex justify-between items-start relative px-2">
-                        <div className="absolute top-4 left-0 right-0 h-0.5 border-t border-dashed border-stone-800 -z-10"></div>
-                        {work.path.map((step, idx) => (
-                          <div key={idx} className="flex flex-col items-center text-center max-w-[80px]">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 z-10 ${idx === 0 ? 'bg-amber-600' : 'bg-stone-800'} border border-stone-700`}>
-                              <step.icon size={14} className="text-white" />
-                            </div>
-                            <span className="text-[10px] font-bold text-stone-200 mb-1">{step.label}</span>
-                            <span className="text-[8px] text-stone-500 leading-tight scale-90">{step.desc}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    <button className="text-[10px] font-bold text-amber-500 flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                      获取完整方案 <ArrowRight size={12} />
+                    </button>
                   </div>
                 </div>
               </div>
             ))}
           </div>
+        </div>
 
-          <div className="glass-card p-6 rounded-3xl border-dashed border-stone-800 flex items-center justify-between group cursor-pointer hover:border-amber-500/50 transition-all">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-stone-900 rounded-2xl group-hover:scale-110 transition-transform">
-                <Sparkles className="text-amber-500" />
-              </div>
-              <div>
-                <div className="font-bold text-stone-200">进入主题深度资产库</div>
-                <div className="text-xs text-stone-500">已收录 56,000+ 可商用文化设计元素</div>
+        <div className="xl:col-span-4 space-y-6">
+          <div className="glass-card rounded-[2.5rem] p-8 border-stone-800/50 flex flex-col h-full sticky top-24">
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="text-xl font-bold flex items-center gap-2">
+                <Network className="text-amber-500" /> 市场传播图谱
+              </h3>
+              <span className="text-[10px] text-stone-500 font-mono">LIVE SYNC</span>
+            </div>
+
+            <div className="flex-1 bg-stone-950/50 rounded-3xl border border-stone-800 relative overflow-hidden flex items-center justify-center p-6 mb-8">
+              <div className="relative w-full h-full flex flex-col items-center justify-center space-y-6">
+                <div className="flex justify-center items-center relative w-full h-40">
+                  <div className="w-16 h-16 rounded-full bg-amber-600 flex items-center justify-center z-10 shadow-2xl shadow-amber-900/40">
+                    <Share2 className="text-white" size={24} />
+                  </div>
+                  {[0, 72, 144, 216, 288].map((angle, i) => (
+                    <div 
+                      key={i} 
+                      className="absolute w-8 h-8 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center transition-all duration-1000"
+                      style={{ 
+                        transform: `rotate(${angle}deg) translate(80px) rotate(-${angle}deg)` 
+                      }}
+                    >
+                      <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></div>
+                    </div>
+                  ))}
+                  <svg className="absolute inset-0 w-full h-full -z-0">
+                    <circle cx="50%" cy="50%" r="80" fill="none" stroke="rgba(120, 53, 15, 0.2)" strokeDasharray="4 4" />
+                  </svg>
+                </div>
+                <div className="text-center">
+                   <div className="text-amber-500 font-black text-2xl">84%</div>
+                   <div className="text-[10px] text-stone-500 font-bold uppercase tracking-widest">爆火几率 (Viral Probability)</div>
+                </div>
               </div>
             </div>
-            <ArrowRight className="text-stone-500 group-hover:translate-x-2 transition-transform" />
           </div>
         </div>
       </div>
+
+      {/* Upload Theme Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in zoom-in duration-300">
+          <div className="glass-card w-full max-w-2xl rounded-3xl p-8 border-stone-800 shadow-2xl relative">
+            <button onClick={() => setIsModalOpen(false)} className="absolute top-6 right-6 text-stone-500 hover:text-white">
+              <X size={24} />
+            </button>
+            <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+              <Sparkles className="text-amber-500" /> 策展商业主题包
+            </h2>
+            <form onSubmit={handleCreateTheme} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-stone-500 uppercase">主题包名称</label>
+                <input 
+                  required 
+                  type="text" 
+                  placeholder="例如：极光飞天·流体金属"
+                  className="w-full bg-stone-900 border border-stone-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  value={formData.title}
+                  onChange={e => setFormData({...formData, title: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-stone-500 uppercase">学术来源引用</label>
+                <input 
+                  required 
+                  type="text" 
+                  placeholder="例如：莫高窟 112 窟·唐代壁画研究"
+                  className="w-full bg-stone-900 border border-stone-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  value={formData.academicSource}
+                  onChange={e => setFormData({...formData, academicSource: e.target.value})}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-stone-500 uppercase">核心色值 (逗号分隔)</label>
+                  <input 
+                    type="text" 
+                    placeholder="#B45309, #78350F"
+                    className="w-full bg-stone-900 border border-stone-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    value={formData.palette}
+                    onChange={e => setFormData({...formData, palette: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-stone-500 uppercase">核心图案特征</label>
+                  <input 
+                    type="text" 
+                    placeholder="宝相花, 云纹"
+                    className="w-full bg-stone-900 border border-stone-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    value={formData.motifs}
+                    onChange={e => setFormData({...formData, motifs: e.target.value})}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-stone-500 uppercase">创意副标题</label>
+                <textarea 
+                  rows={2}
+                  placeholder="简述该主题如何平衡学术准确性与商业审美..."
+                  className="w-full bg-stone-900 border border-stone-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  value={formData.subtitle}
+                  onChange={e => setFormData({...formData, subtitle: e.target.value})}
+                />
+              </div>
+              <button 
+                type="submit" 
+                className="w-full py-4 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-xl transition-all"
+              >
+                生成并发布至主题库
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

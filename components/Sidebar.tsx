@@ -5,6 +5,7 @@ import {
   BookOpen, 
   Lightbulb, 
   ClipboardCheck, 
+  Key,
   Briefcase, 
   Settings,
   Activity,
@@ -25,6 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, role }) =>
     { id: 'research', icon: BookOpen, label: '学术市场', roles: ['INTERNAL'] },
     { id: 'recommend', icon: Lightbulb, label: '主题推荐', roles: ['INTERNAL', 'COMMERCIAL'] },
     { id: 'review', icon: ClipboardCheck, label: '内部评审', roles: ['INTERNAL'] },
+    { id: 'license', icon: Key, label: '作品授权', roles: ['INTERNAL', 'COMMERCIAL'] },
     { id: 'apply', icon: Briefcase, label: '商业应用', roles: ['COMMERCIAL'] },
     { id: 'track', icon: Activity, label: '全链追踪', roles: ['INTERNAL', 'COMMERCIAL'] },
   ];

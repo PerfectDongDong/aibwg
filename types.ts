@@ -8,6 +8,12 @@ export enum HeritageType {
 
 export type UserRole = 'INTERNAL' | 'COMMERCIAL';
 
+export interface CreationPathStep {
+  label: string;
+  icon: string; // Changed to string for serialization/icon mapping
+  desc: string;
+}
+
 export interface Artifact {
   id: string;
   name: string;
@@ -32,4 +38,16 @@ export interface CreativeWork {
   description: string;
   createdAt: string;
   roadmap: IndustryNode[];
+}
+
+export interface LicensedWork {
+  id: string;
+  title: string;
+  imageUrl: string;
+  style: string;
+  licenseType: 'Exclusive' | 'Non-Exclusive' | 'Digital Only';
+  priceRange: string;
+  status: 'Available' | 'Licensed' | 'Pending';
+  description: string;
+  path: CreationPathStep[];
 }
